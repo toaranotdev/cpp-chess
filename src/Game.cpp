@@ -2,10 +2,11 @@
 
 // Game class
 
-Game::Game() {
+Game::Game() : board (& (this->mousePos)){
     this->InitializeVariables();
     this->InitializeWindows();
     this->window->setFramerateLimit (60);
+
 }
 
 Game::~Game() {
@@ -21,7 +22,7 @@ void Game::PollEvents() {
 
         if (this->event.type == sf::Event::MouseButtonPressed) {
             if (this->event.key.code == sf::Mouse::Left) {
-                this->board.HandleInputOn (this->mousePos);
+                this->board.HandleInputOn ();
             }
         }
 
@@ -38,8 +39,8 @@ void Game::Update() {
 
 void Game::Render() {
     this->window->clear();
-    this->board.CreateGraphicalBoard (this->window, this->mousePos);
-    this->board.DrawPiece (this->window, this->mousePos);
+    this->board.CreateGraphicalBoard (this->window);
+    this->board.DrawPiece (this->window);
     this->window->display();
 }
 
@@ -55,6 +56,6 @@ void Game::UpdateMousePos() {
     this->mousePos = sf::Mouse::getPosition (*this->window);
 }
 
-const bool Game::IsOpen() {
+bool Game::IsOpen() {
     return this->window->isOpen();
 }

@@ -1,18 +1,35 @@
-Bare bone chess game coded using C++ and SFML (!! NO RULES IMPLEMENTED !! yet...)
+A very terribly made chess game using C++ and SFML library
+
+## Credits
+- Massively stolen code from [Sebastian Lague](https://github.com/SebLague/Chess-AI)
+- Sounds and sprites taken from [lichess](https:://lichess.org)
 
 ## Features
-
 - Normal chess stuff
-- Thanos snap pieces by simply right clicking on them
+- Terrible code that can give you eyes pleasure
+- Idk
 
 ## Dependency
 
-[SFML]: https://www.sfml-dev.org/
+- [SFML](https://www.sfml-dev.org/)
+- make
 
 ## Build
 
-On linux (SFML Required):
-	
-	make
+- Simply run the following command:
+> make 
 
-... That's it! Lol
+## Change log
+- Wednesday, 1st Dec:
+	- Added core mechanics
+
+- Saturday, 15th January:
+	- Code cleanup
+	- Fen support!
+	- Fix being able to thanos snap pieces by right clicking them
+	- Fix this dumb README.md
+	
+## Todos
+- Stop being an idiot
+- Add actual rules
+- h

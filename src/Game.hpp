@@ -14,7 +14,7 @@ class Game {
         void PollEvents();
         void UpdateMousePos();
         
-        const bool IsOpen();
+        bool IsOpen();
 
     private:
 
@@ -22,7 +22,9 @@ class Game {
         void InitializeWindows();
 
         sf::RenderWindow* window;
+        
         sf::Event event;
+
         Board board;
 
 };
