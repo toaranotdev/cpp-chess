@@ -1,7 +1,6 @@
 #pragma once
 #include <iostream>
 #include <map>
-#include <vector>
 #include "Piece.hpp"
 
 class FenUtility {

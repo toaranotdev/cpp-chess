@@ -1,6 +1,6 @@
 #pragma once
-#include "FenUtility.hpp"
-
+#include "Move.hpp"
+#include <SFML/Audio.hpp>
 
 class Board {
     public:
@@ -8,6 +8,7 @@ class Board {
 
         void CreateGraphicalBoard (sf::RenderTarget* target);
         void DrawPiece (sf::RenderTarget* target);
+        void DrawHighlight (sf::RenderTarget* target);
 
         void HandleInputOn ();
         void HandleInputOff ();
@@ -16,31 +17,44 @@ class Board {
         
         void InitializeSprite();
         void InitializeBoard();
+        // Instead of setting up things using constructors, i'd like to control when to call it
+        void InitializeMove();
 
-    private:
-
-        sf::RectangleShape Square;
-        sf::Texture texture;
-        sf::Sprite sprite[12];
-
-        Piece piece;
-
+        int boardSquare[64];
+        int colorToMove;
+        
         int heldPiece;
         int heldPieceType;
         int heldPieceCol;
 
+    private:
+
+        void PlaySound (int flag);
+
+        sf::RectangleShape Square;
+        sf::RectangleShape Highlight;
+
+        sf::Color highlightColor;
+        
+        sf::Texture texture;
+        sf::Sprite sprite[12];
+
+        sf::SoundBuffer Buffer;
+        sf::Sound Sound;
+
+        // Size of one tile
         float size;
         
         int lastSquareClicked;
-
-        int boardSquare[64];
         
         sf::Vector2i* mousePos;
+        Move move;
+        
         FenUtility fenUtility;
 
         std::map <int, int> spriteIndexFromType = {
-            {this->piece.King, 1}, {this->piece.Queen, 2},
-            {this->piece.Bishop, 3}, {this->piece.Knight, 4},
-            {this->piece.Rook, 5}, {this->piece.Pawn, 6}
+            {Piece::King, 1}  , {Piece::Queen, 2},
+            {Piece::Bishop, 3}, {Piece::Knight, 4},
+            {Piece::Rook, 5}  , {Piece::Pawn, 6}
         };
 };

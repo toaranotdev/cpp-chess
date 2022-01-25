@@ -15,20 +15,23 @@ Game::~Game() {
 
 void Game::PollEvents() {
     while (this->window->pollEvent (this->event)) {
-        
-        if (this->event.type == sf::Event::Closed) {
-            this->window->close();
-        }
-
-        if (this->event.type == sf::Event::MouseButtonPressed) {
-            if (this->event.key.code == sf::Mouse::Left) {
-                this->board.HandleInputOn ();
-            }
-        }
-
-        if (this->event.type == sf::Event::MouseButtonReleased) {
-            this->board.HandleInputOff();
-        }
+        switch (this->event.type) {
+            case sf::Event::Closed:
+                this->window->close();
+                break;
+            case sf::Event::MouseButtonPressed:
+                if (this->event.mouseButton.button == sf::Mouse::Left) {
+                    this->board.HandleInputOn();
+                }
+                break;
+            case sf::Event::MouseButtonReleased:
+                if (this->event.mouseButton.button == sf::Mouse::Left) {
+                    this->board.HandleInputOff();
+                }
+                break;
+            default:
+                break;
+        };
     }
 }
 
@@ -40,12 +43,13 @@ void Game::Update() {
 void Game::Render() {
     this->window->clear();
     this->board.CreateGraphicalBoard (this->window);
+    this->board.DrawHighlight (this->window);
     this->board.DrawPiece (this->window);
     this->window->display();
 }
 
 void Game::InitializeWindows() {
-    this->window = new sf::RenderWindow (sf::VideoMode (512, 512), "Chess");
+    this->window = new sf::RenderWindow (sf::VideoMode (680, 680), "Chess");
 }
 
 void Game::InitializeVariables() {

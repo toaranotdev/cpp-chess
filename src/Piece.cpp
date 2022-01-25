@@ -1,15 +1,19 @@
 #include "Piece.hpp"
 
-bool Piece::IsColor (int piece, int color) {
-    return (piece & Piece::colorMask) == color;
-}
-
 int Piece::Color (int piece) {
     return piece & Piece::colorMask;
 }
 
 int Piece::Type (int piece) {
     return piece & Piece::typeMask;
+}
+
+bool Piece::IsColor (int piece, int color) {
+    return (piece & Piece::colorMask) == color;
+}
+
+bool Piece::IsType (int piece, int type) {
+    return (piece & Piece::typeMask) == type;
 }
 
 bool Piece::IsRookOrQueen (int piece) {

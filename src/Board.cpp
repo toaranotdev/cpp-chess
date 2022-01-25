@@ -3,24 +3,46 @@
 Board::Board (sf::Vector2i* mousePos) : fenUtility (this->boardSquare) {
 
     // Initialize variables
-    this->size = 64.f; // Size of the squares
-    this->heldPiece = 0;
+    this->size = 85.f;
+    this->heldPiece = Piece::None;
+    this->colorToMove = Piece::White;
 
     // Initialize mouse
     this->mousePos = mousePos;
 
     this->InitializeSprite();
     this->InitializeBoard();
+    this->InitializeMove();
 
 }
-void Board::InitializeBoard() {
-    std::string startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+void Board::InitializeMove () {
+    this->move.Square = this->boardSquare;
+    this->move.colorToMove = & (this->colorToMove);
+
+    this->move.CalculateNumSquareToEdge();
+    this->move.GenerateMove();
+}
+
+
+void Board::InitializeBoard () {
+    // Initalize board square sprite
+    sf::Vector2f size = sf::Vector2f (this->size, this->size);
+    this->Square.setSize (size);
+
+    // Initialize highlight square
+    this->highlightColor = sf::Color (255, 99, 107, 99);
+    this->Highlight.setSize (size);
+    this->Highlight.setFillColor (this->highlightColor);
+
+    std::string startFen = "nrqb/8/8/8/8/8/8/RBQ w KQkq - 0 1";
     this->fenUtility.LoadPosFromFen (startFen);
 }
 
+
 void Board::InitializeSprite() {
 
-    this->texture.loadFromFile ("assets/piece.png");
+    this->texture.loadFromFile ("assets/sprites/pieces.png");
     this->texture.setSmooth (true);
 
     sf::Vector2f spriteScale = sf::Vector2f (this->size / (2000.f / 6.f), this->size / 334.f);
@@ -46,13 +68,12 @@ void Board::InitializeSprite() {
 }
 
 void Board::CreateGraphicalBoard (sf::RenderTarget* target) {
-    this->Square.setSize (sf::Vector2f (this->size, this->size));
 
     sf::Color darkCol = sf::Color (181, 136, 99);
     sf::Color lightCol = sf::Color (240, 217, 181);
 
-    for (int rank = 0; rank < 8; rank ++) {
-        for (int file = 0; file < 8; file ++) {
+    for (int file = 0; file < 8; file ++) {
+        for (int rank = 0; rank < 8; rank ++) {
 
             bool isLightSquare = (file + rank) % 2 == 0;
 
@@ -67,41 +88,39 @@ void Board::CreateGraphicalBoard (sf::RenderTarget* target) {
 }
 
 void Board::DrawPiece (sf::RenderTarget* target) {
-    for (int rank = 0; rank < 8; rank ++) {
+    for (int rank = 7; rank >= 0; rank --) {
         for (int file = 0; file < 8; file ++) {
 
-            // To make the index starts at the top left square, 7 - rank does that
             int squareIndex = rank * 8 + file;
             int piece = this->boardSquare[squareIndex];
             
-            // Skip drawing if square contains no pieces
-            if (piece == this->piece.None) {
+            // Skip if square contained no pieces
+            if (piece == Piece::None) {
                 continue;
             }
 
-            int pieceType = this->piece.Type (piece);
-            int pieceCol = this->piece.Color (piece);
+            int pieceType = Piece::Type (piece);
 
-            // Due to how the sprites are set up +5 or -1 is needed to be add to the index
-            int offset = (pieceCol == this->piece.White) ? 5 : -1;
+            int offset = (Piece::IsColor (piece, Piece::White)) ? -1 : 5;
             int index = this->spriteIndexFromType[pieceType] + offset;
+
+            sf::Vector2f pos = sf::Vector2f (this->size * file, this->size * (7 - rank));
             
-            sprite[index].setPosition (sf::Vector2f (this->size * file, this->size * rank));
+            sprite[index].setPosition (pos);
             target->draw (sprite[index]);
 
         }
     }
 
-    if (this->heldPiece != 0) {
+    if (this->heldPiece != Piece::None) {
         
-        this->heldPieceType = this->piece.Type (this->heldPiece);
-        this->heldPieceCol = this->piece.Color (this->heldPiece);
+        this->heldPieceType = Piece::Type (this->heldPiece);
+        this->heldPieceCol = Piece::Color (this->heldPiece);
 
-        int offset = (this->heldPieceCol == this->piece.White) ? 5 : -1;
+        int offset = (Piece::IsColor (this->heldPiece, Piece::White)) ? -1 : 5;
         int index = this->spriteIndexFromType[this->heldPieceType] + offset;
 
         sf::Vector2f position = sf::Vector2f (this->mousePos->x - (this->size / 2.f), this->mousePos->y - (this->size / 2.f));
-
         sprite[index].setPosition (position);
         target->draw (sprite[index]);
 
@@ -112,30 +131,100 @@ void Board::HandleInputOn() {
     int squareUnderMouse = this->GetSquareUnderMouse ();
     int pieceOnSquareUnderMouse = this->boardSquare[squareUnderMouse];
 
-    if (pieceOnSquareUnderMouse != this->piece.None) {
-        if (this->heldPiece == this->piece.None) {
+    if (pieceOnSquareUnderMouse != Piece::None) {
+        if (this->heldPiece == Piece::None) {
 
             this->lastSquareClicked = squareUnderMouse;
+            this->move.GetMove (this->lastSquareClicked);
             this->heldPiece = pieceOnSquareUnderMouse;
-            this->boardSquare[this->lastSquareClicked] = 0;
+            this->boardSquare[this->lastSquareClicked] = Piece::None;
         
         }
     }
 }
 
 void Board::HandleInputOff () {
-    // To avoid placing an empty piece, this will change when legal moves are added
-    if (this->heldPiece != 0) {
-        int squareUnderMouse = this->GetSquareUnderMouse();
+    int squareUnderMouse = this->GetSquareUnderMouse();
+    int flag = 0; // Audio flag
+
+    if (this->heldPiece == 0) {
+        return;
+    }
+
+    if (this->move.IsValidMove (squareUnderMouse)) {
+        
+        int offset = (this->boardSquare[squareUnderMouse] != Piece::None) ? 2 : 1;
+
         this->boardSquare[squareUnderMouse] = this->heldPiece;
-        this->heldPiece = this->piece.None;
+        this->heldPiece = Piece::None;
+
+        int nextColor = (this->colorToMove == Piece::White) ? Piece::Black : Piece::White;
+        this->colorToMove = nextColor;
+
+        this->move.ClearData (3);
+        this->move.GenerateMove();
+
+        flag += offset;
+
+    } else {
+        this->boardSquare[this->lastSquareClicked] = this->heldPiece;
+        this->heldPiece = 0;
+        this->move.ClearData (2);
+        
+        int offset = (squareUnderMouse == this->lastSquareClicked) ? 0 : 3;
+        flag += offset;
+    }
+
+    if (flag != 0) {
+        this->PlaySound (flag);
     }
 }
 
 int Board::GetSquareUnderMouse () {
     int rank = this->mousePos->y / this->size;
     int file = this->mousePos->x / this->size;
-    int index = rank * 8 + file;
+    int index = (7 - rank) * 8 + file;
+    
+    // Out of accepted values ? Return -1 (invalid) if yes;
+    return (index < 0 || index > 63) ? -1 : index;
+}
 
-    return index;
+void Board::DrawHighlight (sf::RenderTarget* target) {
+    if (this->move.movesForHeldPiece.empty()) {
+        return;
+    } else {
+        for (int a : this->move.movesForHeldPiece) {
+
+            int file = this->move.GetFileFromIndex (a);
+            int rank = this->move.GetRankFromIndex (a);
+
+            this->Highlight.setPosition (this->size * file, this->size * rank);
+            target->draw (this->Highlight);
+        }
+    }
+}
+
+void Board::PlaySound (int flag) {
+    /*
+    1: Move
+    2: Capture
+    3: Error
+    */
+    switch (flag) {
+        case 1:
+            this->Buffer.loadFromFile ("assets/sfx/Move.ogg");
+            break;
+        case 2:
+            this->Buffer.loadFromFile ("assets/sfx/Capture.ogg");
+            break;
+        case 3:
+            this->Buffer.loadFromFile ("assets/sfx/Error.ogg");
+            break;
+        default:
+            break;
+    };
+
+    this->Sound.setBuffer (this->Buffer);
+    this->Sound.play();
+
 }
