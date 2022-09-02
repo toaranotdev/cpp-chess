@@ -1,11 +1,12 @@
-#include "Game.hpp"
+#include "game.h"
 
-int main() {
-    Game game;
-    
-    while (game.IsOpen()) {
-        game.Update();
-        game.Render();
-    }
-    return 0;
+int main () {
+	Game game;
+
+	while (game.IsWindowOpen()) {
+		game.Update();
+		game.Render();
+	}
+
+	return 0;
 }

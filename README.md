@@ -1,41 +1,74 @@
-A very terribly made chess game using C++ and SFML library
+A terribly made C++ program that uses SFML library. At first when I started programming, I've always wanted a 
+"How to make Chess" tutorial. Unfortunately, Youtube got me nowhere. The closest I had was from Sebastian Lague.
+But what he made was a Chess AI, though, of course he walked everyone through how he made the chess game. But
+I'm not content
 
-## Credits
-- Massively stolen code from [Sebastian Lague](https://github.com/SebLague/Chess-AI)
-- Sounds and sprites taken from [lichess](https://lichess.org)
+# Credits
+Massively stolen code from [Sebastian Lague](https://github.com/SebLague/Chess-AI)
+Sounds and sprites taken from [lichess](https://lichess.org)
 
-## Features
+(It's actually called plagiarize)
+
+# Features
+
 - Normal chess stuff
-- Terrible code that can give you eyes pleasure
+- Epic gamer code that can make your eyes explode (I hope not :)), feel free to suggest your epic improvements 
+in issues, I'm open to hear them!)
 - Idk
 
-## Dependency
+# Why not use SDL
 
-- [SFML](https://www.sfml-dev.org/)
-- make
+SDL = headache = big nono
 
-## Build
+# Dependencies
 
-- Simply run the following command:
-> make 
+* g++
+* SFML library
+* cmake
+* make
 
-## Change log
-- Wednesday, 1st Dec:
-	- Add core mechanics
+# How to compile
 
-- Saturday, 15th January:
-	- Code cleanup
-	- Fen support!
-	- Fix being able to thanos snap pieces by right clicking them
-	- Fix this dumb README.md
+Simply run the following command (assuming you're on linux cuz fuck Microsoft)
 
-- Tuesday, January 25th:
-	- Fix this dumb README.md again
-	- Legal moves ! (But only for Rooks, Bishops, Queen, King)
-	- Code is messed up again xd
-	- Uh
+```
+cd build
+cmake .. && make
+```
 
-## Todos
+# Running
+
+Sometimes the texture fails to load :(. A work around is to run
+the game in the project's folder (where this README.md is located) rather 
+than in the build/ folder
+
+```
+./build/cpp-chess
+```
+
+# Change logs
+
+
+## Wednesday, 1st Dec 2020
+- Added core mechanics
+
+## Saturday, 15th January 2020 
+- Code cleanup
+- Fen support!
+- Fix being able to thanos snap pieces by right clicking them
+- Fix this dumb README.md
+
+## Tuesday, January 25th 2020 
+- Fix this dumb README.md again
+- Legal moves ! (But only for Rooks, Bishops, Queen, King)
+- Code is messed up again xd
+- Uh
+
+## Wed, 31st of August, 2022
+- I can't seem to write a proper README.md file
+- Complete development reset! It's been a while and I did not use that amount of time to waste ;)
+
+# Todos
 - Stop being an idiot
-- Gotta complete this in Feb because school is back
+- Fix this README.md because I know the second I commit and push it to Github I will find a typo
 - h
