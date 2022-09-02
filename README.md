@@ -4,10 +4,10 @@ But what he made was a Chess AI, though, of course he walked everyone through ho
 I'm not content
 
 # Credits
-Massively stolen code from [Sebastian Lague](https://github.com/SebLague/Chess-AI)
-Sounds and sprites taken from [lichess](https://lichess.org)
+- Massively stolen code from [Sebastian Lague](https://github.com/SebLague/Chess-AI)
+- Sounds and sprites taken from [lichess](https://lichess.org)
 
-(It's actually called plagiarize)
+- (It's actually called plagiarize)
 
 # Features
 
