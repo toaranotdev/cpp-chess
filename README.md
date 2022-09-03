@@ -7,7 +7,7 @@ I'm not content
 - Massively stolen code from [Sebastian Lague](https://github.com/SebLague/Chess-AI)
 - Sounds and sprites taken from [lichess](https://lichess.org)
 
-- (It's actually called plagiarize)
+~~It's actually called plagiarize~~
 
 # Features
 
@@ -48,17 +48,16 @@ than in the build/ folder
 
 # Change logs
 
-
-## Wednesday, 1st Dec 2020
+## Wednesday, 1st of Dec, 2021
 - Added core mechanics
 
-## Saturday, 15th January 2020 
+## Saturday, 15th of January, 2022 
 - Code cleanup
 - Fen support!
 - Fix being able to thanos snap pieces by right clicking them
 - Fix this dumb README.md
 
-## Tuesday, January 25th 2020 
+## Tuesday, 25th of January, 2022
 - Fix this dumb README.md again
 - Legal moves ! (But only for Rooks, Bishops, Queen, King)
 - Code is messed up again xd
@@ -67,6 +66,12 @@ than in the build/ folder
 ## Wed, 31st of August, 2022
 - I can't seem to write a proper README.md file
 - Complete development reset! It's been a while and I did not use that amount of time to waste ;)
+
+## Sat, 3rd September, 2022
+- Fix this README.md again (BRUH)
+- Added drag and drop (very cool)
+- School is coming back so I'm ded
+- Yes
 
 # Todos
 - Stop being an idiot

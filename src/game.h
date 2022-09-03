@@ -1,6 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <memory>
 
 #include "board.h"
@@ -24,6 +26,13 @@ class Game {
 		void Render();
 		void RenderBoard();
 		void RenderPiece();
+		void RenderHoldingPiece();
+
+		void HandleMouseClick();
+		void HandleMouseRelease();
+
+		// getters
+		int GetSquareUnderMouse();
 		
 		// checks
 		bool IsWindowOpen();
@@ -31,9 +40,14 @@ class Game {
 		std::unique_ptr<sf::RenderWindow> window;
 		sf::Event event;
 
+		// mouse position
+		sf::Vector2i mousePos;
+
 		// single square sprite to draw the board
 		sf::RectangleShape tile;
-		
+		// single square sprite to draw highlights
+		sf::RectangleShape highlight;
+
 		/*
 			apparently you can do
 			sf::Vector2f tileSize (85.f, 85.f) in a FUNCTION
@@ -41,6 +55,7 @@ class Game {
 		*/
 
 		sf::Vector2f tileSize { 85.f, 85.f };
+		float spriteSize = 334; // size of one sprite in that whole atlas (./assets/textures/pieces.png)
 
 		// pieces appearance
 		sf::Texture texture;
