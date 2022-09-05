@@ -38,9 +38,8 @@ cmake .. && make
 
 # Running
 
-Sometimes the texture fails to load :(. A work around is to run
-the game in the project's folder (where this README.md is located) rather 
-than in the build/ folder
+The texture will fail to load if you run it in the build directory, sorry :<. A way around
+that is to run it in the project directory instead
 
 ```
 ./build/cpp-chess
@@ -58,20 +57,25 @@ than in the build/ folder
 - Fix this dumb README.md
 
 ## Tuesday, 25th of January, 2022
-- Fix this dumb README.md again
+- Fixed this dumb README.md again
 - Legal moves ! (But only for Rooks, Bishops, Queen, King)
 - Code is messed up again xd
 - Uh
 
-## Wed, 31st of August, 2022
+## Wednesday, 31st of August, 2022
 - I can't seem to write a proper README.md file
 - Complete development reset! It's been a while and I did not use that amount of time to waste ;)
 
-## Sat, 3rd September, 2022
-- Fix this README.md again (BRUH)
+## Saturday, 3rd of September, 2022
+- Fixed this README.md again (BRUH)
 - Added drag and drop (very cool)
 - School is coming back so I'm ded
 - Yes
+
+## Monday, 5th of September, 2022
+- School has came back and I'm ded inside
+- Fixed this dumb README.md again (omg)
+- Added legal moves for Rooks, Bishops and Queens ;)
 
 # Todos
 - Stop being an idiot
