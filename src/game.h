@@ -25,6 +25,7 @@ class Game {
 		
 		void Render();
 		void RenderBoard();
+		void RenderHighlight();
 		void RenderPiece();
 		void RenderHoldingPiece();
 
@@ -48,6 +49,9 @@ class Game {
 		// single square sprite to draw highlights
 		sf::RectangleShape highlight;
 
+		// contains the previously clicked square
+		int lastSquare;
+
 		/*
 			apparently you can do
 			sf::Vector2f tileSize (85.f, 85.f) in a FUNCTION
@@ -68,7 +72,7 @@ class Game {
 
 		// our board object
 		Board board;
-
+		
 		// tile colors
 		sf::Color lightSquare { 140, 162, 173 };
 		sf::Color darkSquare { 222, 227, 230 };

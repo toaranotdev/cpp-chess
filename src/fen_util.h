@@ -5,9 +5,14 @@
 
 #include "piece.h"
 
-namespace FenUtil {
-	void LoadFen(int* square, std::string fenString);
+// struct that represent board data
+struct BoardData {
+	int* squares;
+	int* colorToMove;
+};
 
-	// apparently you cannot use double quotes for chars otherwise shit happens
+namespace FenUtil {
+	void LoadFen(BoardData data, std::string fenString);
+
 	extern std::map<char, int> pieceMap;
 };

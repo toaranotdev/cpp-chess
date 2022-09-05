@@ -1,5 +1,6 @@
 #include "game.h"
 #include "piece.h"
+#include <cmath>
 #include <iostream>
 
 Game::Game() {
@@ -28,7 +29,7 @@ void Game::InitializePieceSprite() {
 	if (!this->texture.loadFromFile("./assets/textures/pieces.png")) {
 		this->window->close();
 	} else {
-		this->texture.setSmooth(true);
+		this->texture.setSmooth(false);
 		
 		float size = 334; // size of one sprite in that whole sprite atlas
 		sf::Vector2f scaleFactor (this->tileSize.x / size, this->tileSize.y / size);
@@ -52,8 +53,11 @@ void Game::InitializePieceSprite() {
 }
 
 void Game::InitializeTileSprite() {
-	// square size, the tiles are actually colored as they are drawn
+	// the tile representing the board, they are actually colored as they are drawn
 	this->tile.setSize(this->tileSize);
+	// the tile representing the tile that a piece can move to
+	this->highlight.setSize(this->tileSize);
+	this->highlight.setFillColor(sf::Color(237, 42, 45, 90));
 }
 
 void Game::Update() {
@@ -90,14 +94,15 @@ void Game::UpdateInput() {
 void Game::Render() {
 	this->window->clear();
 	this->RenderBoard();
+	this->RenderHighlight();
 	this->RenderPiece();
 	this->RenderHoldingPiece();
 	this->window->display();
 }
 
 void Game::RenderBoard() {
-	for (int file = 0; file < 8; file ++) {
-		for (int rank = 0; rank < 8; rank ++) {
+	for (int rank = 0; rank < 8; rank ++) {
+		for (int file = 0; file < 8; file ++) {
 			bool isLightSquare = ((rank + file) % 2 == 0);
 			
 			sf::Color squareColor = (isLightSquare) ? this->lightSquare : this->darkSquare;
@@ -105,16 +110,34 @@ void Game::RenderBoard() {
 		
 
 			int x = file * this->tileSize.x;
-			int y = rank * this->tileSize.y;
-			this->tile.setPosition(sf::Vector2f(x, y));
+			int y = std::abs(rank - 7) * this->tileSize.y;
+
+			sf::Vector2f position (x, y);
+
+			this->tile.setPosition(position);
 			this->window->draw(this->tile);
 		}
 	}
 }
 
+void Game::RenderHighlight() {
+	if (this->board.heldPiece != Piece::none) {
+		for (int i : this->board.heldPieceMoves) {
+			
+			int x = this->board.GetIndexFile(i) * this->tileSize.x;
+			int y = std::abs(this->board.GetIndexRank(i) - 7) * this->tileSize.y;
+
+			sf::Vector2f position (x, y);
+
+			this->highlight.setPosition(position);
+			this->window->draw(this->highlight);
+		}
+	}
+}
+
 void Game::RenderPiece() {
-	for (int file = 0; file < 8; file ++) {
-		for (int rank = 0; rank < 8; rank ++) {
+	for (int rank = 0; rank < 8; rank ++) {
+		for (int file = 0; file < 8; file ++) {
 			int index = rank * 8 + file;
 
 			int piece = this->board.squares[index];
@@ -126,8 +149,11 @@ void Game::RenderPiece() {
 				int indexOffset = (Piece::IsColor(piece, Piece::white)) ? 0 : 6;
 				int index = this->spriteIndexMap[type] + indexOffset; 
 
+				// a chess board usually starts in the BOTTOM LEFT
+				// corner but if SFML coordinates indicates that 0 is the UPPER LEFT
+				// so we have to asidhsaiodhasiodh
 				int x = file * this->tileSize.x;
-				int y = rank * this->tileSize.y;
+				int y = std::abs(rank - 7) * this->tileSize.y;
 
 				sf::Sprite* sprite = &(this->sprites[index]);
 				
@@ -160,18 +186,37 @@ void Game::RenderHoldingPiece() {
 void Game::HandleMouseClick() {
 	int index = this->GetSquareUnderMouse();
 	int piece = (index != -1) ? this->board.squares[index] : Piece::none;
-	
-	this->board.heldPiece = piece;
-	this->board.squares[index] = Piece::none;
+
+	if (piece) {
+		this->lastSquare = index;
+
+		this->board.heldPiece = piece;
+		this->board.squares[index] = Piece::none;
+
+		this->board.GenerateHeldPieceMoves(index);
+	}
 }
 
 void Game::HandleMouseRelease() {
 	int index = this->GetSquareUnderMouse();
 	int piece = this->board.heldPiece;
 	
-	if (piece) { 
-		this->board.squares[index] = piece;
-		this->board.heldPiece = Piece::none;
+	if (piece) {
+		bool canMove = this->board.colorToMove == Piece::GetColor(piece) && this->board.IsMoveValid(index);
+		if (canMove) {
+			int nextColor = (this->board.colorToMove == Piece::white) ? Piece::black : Piece::white;
+			
+			this->board.squares[index] = piece;
+			this->board.heldPiece = Piece::none;
+
+			this->board.colorToMove = nextColor;
+			this->board.GeneratePossibleMoves();
+		} else {
+			this->board.heldPiece = Piece::none;
+			this->board.squares[this->lastSquare] = piece;
+		}
+
+		this->board.ClearHeldPieceMoveData();
 	}
 }
 
@@ -179,7 +224,7 @@ int Game::GetSquareUnderMouse() {
 	int x = this->mousePos.x / this->tileSize.x;
 	int y = this->mousePos.y / this->tileSize.y;
 
-	int index = y * 8 + x;
+	int index = std::abs(y - 7) * 8 + x;
 
 	// -1 is a fail safe to prevent the player from dragging
 	// the mouse out of the window and click and then the game starts to asidsaiojdsaidsajdisjdas itself ok

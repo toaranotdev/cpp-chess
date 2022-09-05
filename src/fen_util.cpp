@@ -18,8 +18,9 @@ std::map <char, int> FenUtil::pieceMap {
  *
  */
 
-void FenUtil::LoadFen(int* square, std::string fenString) {
+void FenUtil::LoadFen(BoardData data, std::string fenString) {
 	std::string fenBoard = fenString.substr(0, fenString.find(" "));
+	char firstMover = (fenString.substr(fenString.find(" ") + 1, 1))[0];
 
 	int file = 0;
 	int rank = 7;
@@ -36,10 +37,12 @@ void FenUtil::LoadFen(int* square, std::string fenString) {
 				int type = FenUtil::pieceMap[tolower(symbol)];
 				
 				int index = rank * 8 + file;
-				square[index] = color | type;
+				data.squares[index] = color | type;
 				
 				file ++;
 			}
 		}
 	}
+
+	*(data.colorToMove) = (tolower(firstMover) == 'w') ? Piece::white : Piece::black;
 }
