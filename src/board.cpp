@@ -1,4 +1,5 @@
 #include "board.h"
+#include <cmath>
 
 Board::Board() {
 	BoardData data = this->ExportData();
@@ -57,6 +58,12 @@ void Board::GeneratePossibleMoves() {
 					this->GenerateSlidingPieceMoves(i, piece);
 					break;
 				}
+
+				case Piece::knight:
+				{
+					this->GenerateKnightMoves(i);
+					break;
+				}
 				
 				default:
 					break;
@@ -91,6 +98,28 @@ void Board::GenerateSlidingPieceMoves (int startSquare, int piece) {
     	}
 }
 
+void Board::GenerateKnightMoves(int startSquare) {
+	const int knightJumps[] = { 15, 17, -15, -17, 6, 10, -6, -10 };
+	
+	for (int offset : knightJumps) {
+		int targetSquare = startSquare + offset;
+			
+		// make sure the knights only move two squares
+		// on the x, y axis to eliminate indecies that wrapped around the board
+		bool isRangeValid = (this->AreTwoSquaresInRange(startSquare, targetSquare, 2) &&
+					targetSquare < 64 && targetSquare >= 0);
+	
+		if (isRangeValid) {
+			int pieceOnTargetSquare = this->squares[targetSquare];
+			
+			if (Piece::IsColor(pieceOnTargetSquare, this->colorToMove))
+				continue;
+			
+			this->possibleMoves.push_back({ startSquare, targetSquare });
+		}
+	}
+}
+
 void Board::ClearPossibleMoveData() {
 	this->possibleMoves.clear();
 }
@@ -101,6 +130,15 @@ void Board::ClearHeldPieceMoveData() {
 
 bool Board::IsMoveValid(int targetSquare) {
 	return std::find(this->heldPieceMoves.begin(), this->heldPieceMoves.end(), targetSquare) != heldPieceMoves.end();		
+}
+
+bool Board::AreTwoSquaresInRange(int startSquare, int targetSquare, int range) {
+	int deltaX = std::abs(this->GetIndexFile(startSquare) - this->GetIndexFile(targetSquare));
+	int deltaY = std::abs(this->GetIndexRank(startSquare) - this->GetIndexRank(targetSquare));
+
+	int max = std::max(deltaX, deltaY);
+
+	return max == range;
 }
 
 int Board::GetIndexRank(int index) {

@@ -38,6 +38,9 @@ class Game {
 		// checks
 		bool IsWindowOpen();
 	private:
+
+		void DrawSquare(sf::RectangleShape square, sf::Vector2f pos, sf::Color color);
+
 		std::unique_ptr<sf::RenderWindow> window;
 		sf::Event event;
 
@@ -76,4 +79,7 @@ class Game {
 		// tile colors
 		sf::Color lightSquare { 140, 162, 173 };
 		sf::Color darkSquare { 222, 227, 230 };
+
+		sf::Color previousMoveColor { 255, 182, 86, 70 };
+		sf::Color movableColor { 237, 42, 45, 90 };
 };

@@ -36,17 +36,19 @@ class Board {
 		void ClearHeldPieceMoveData();
 
 		bool IsMoveValid(int targetSquare);
+		bool AreTwoSquaresInRange(int startSquare, int targetSquare, int range);
+
+		// contains the previous square the moved piece was at and the next square
+		// the piece moves to
+		int lastSquare = -1;
+		int nextSquare = -1;
 
 	private:
 		void CalculateNumSquaresToEdge();
 		
 		void GenerateSlidingPieceMoves(int startSquare, int piece);
+		void GenerateKnightMoves(int startSquare);
 
 		std::string startingFen = "nrqb/8/8/8/8/8/8/RBQ w KQkq - 0 1";
 		int directionOffsets[8] = { 8, -8, 1, -1, 7, -7, 9, -9 };
-
-		// contains the previous square the moved piece was at and the next square
-		// the piece moves to
-		int lastSquare;
-		int nextSquare;
 };

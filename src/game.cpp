@@ -1,5 +1,6 @@
 #include "game.h"
 #include "piece.h"
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <cmath>
 #include <iostream>
 
@@ -57,7 +58,6 @@ void Game::InitializeTileSprite() {
 	this->tile.setSize(this->tileSize);
 	// the tile representing the tile that a piece can move to
 	this->highlight.setSize(this->tileSize);
-	this->highlight.setFillColor(sf::Color(237, 42, 45, 90));
 }
 
 void Game::Update() {
@@ -91,6 +91,13 @@ void Game::UpdateInput() {
 	}
 }
 
+void Game::DrawSquare(sf::RectangleShape square, sf::Vector2f pos, sf::Color color) {
+	square.setFillColor(color);
+	square.setPosition(pos);
+	
+	this->window->draw(square);
+}
+
 void Game::Render() {
 	this->window->clear();
 	this->RenderBoard();
@@ -104,35 +111,43 @@ void Game::RenderBoard() {
 	for (int rank = 0; rank < 8; rank ++) {
 		for (int file = 0; file < 8; file ++) {
 			bool isLightSquare = ((rank + file) % 2 == 0);
-			
-			sf::Color squareColor = (isLightSquare) ? this->lightSquare : this->darkSquare;
-			this->tile.setFillColor(squareColor);
-		
+			sf::Color color = (isLightSquare) ? this->lightSquare : this->darkSquare;	
 
 			int x = file * this->tileSize.x;
 			int y = std::abs(rank - 7) * this->tileSize.y;
+			sf::Vector2f pos (x, y);
 
-			sf::Vector2f position (x, y);
+			this->DrawSquare(this->tile, pos, color);
 
-			this->tile.setPosition(position);
-			this->window->draw(this->tile);
 		}
 	}
 }
 
 void Game::RenderHighlight() {
 	if (this->board.heldPiece != Piece::none) {
-		for (int i : this->board.heldPieceMoves) {
-			
+		for (int i : this->board.heldPieceMoves) {			
 			int x = this->board.GetIndexFile(i) * this->tileSize.x;
 			int y = std::abs(this->board.GetIndexRank(i) - 7) * this->tileSize.y;
+			sf::Vector2f pos (x, y);
 
-			sf::Vector2f position (x, y);
+			this->DrawSquare(this->highlight, pos, this->movableColor);
 
-			this->highlight.setPosition(position);
-			this->window->draw(this->highlight);
 		}
 	}
+
+	if (this->board.lastSquare > 0 && this->board.nextSquare > 0) {
+		int lastSquareX = this->board.GetIndexFile(this->board.lastSquare) * this->tileSize.x;
+		int lastSquareY = std::abs(this->board.GetIndexRank(this->board.lastSquare) - 7) * this->tileSize.y;
+	
+		int nextSquareX = this->board.GetIndexFile(this->board.nextSquare) * this->tileSize.x;
+		int nextSquareY = std::abs(this->board.GetIndexRank(this->board.nextSquare) - 7) * this->tileSize.y;
+
+		sf::Vector2f lastSquarePos (lastSquareX, lastSquareY);
+		sf::Vector2f nextSquarePos (nextSquareX, nextSquareY);
+
+		this->DrawSquare(this->highlight, lastSquarePos, this->previousMoveColor);	
+		this->DrawSquare(this->highlight, nextSquarePos, this->previousMoveColor);
+	}	
 }
 
 void Game::RenderPiece() {
@@ -157,8 +172,8 @@ void Game::RenderPiece() {
 
 				sf::Sprite* sprite = &(this->sprites[index]);
 				
-				sf::Vector2f position (x, y);
-				sprite->setPosition(position);
+				sf::Vector2f pos (x, y);
+				sprite->setPosition(pos);
 
 				this->window->draw(*(sprite));	
 			}
@@ -176,9 +191,9 @@ void Game::RenderHoldingPiece() {
 
 		sf::Sprite* sprite = & (this->sprites[index]);
 
-		sf::Vector2f position (this->mousePos.x - this->tileSize.x / 2, this->mousePos.y - this->tileSize.y / 2);
+		sf::Vector2f pos (this->mousePos.x - this->tileSize.x / 2, this->mousePos.y - this->tileSize.y / 2);
 		
-		sprite->setPosition(position);
+		sprite->setPosition(pos);
 		this->window->draw(*(sprite));
 	}
 }
@@ -205,7 +220,10 @@ void Game::HandleMouseRelease() {
 		bool canMove = this->board.colorToMove == Piece::GetColor(piece) && this->board.IsMoveValid(index);
 		if (canMove) {
 			int nextColor = (this->board.colorToMove == Piece::white) ? Piece::black : Piece::white;
-			
+		
+			this->board.lastSquare = this->lastSquare;
+			this->board.nextSquare = index;
+
 			this->board.squares[index] = piece;
 			this->board.heldPiece = Piece::none;
 

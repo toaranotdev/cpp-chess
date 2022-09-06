@@ -77,6 +77,13 @@ that is to run it in the project directory instead
 - Fixed this dumb README.md again (omg)
 - Added legal moves for Rooks, Bishops and Queens ;)
 
+## Tuesday, 6th of September, 2022
+- First day of school was alright
+- I didn't have to fix README.md again woo
+- Added legal moves for knights ;)
+- Added highlights for squares that the pieces move to
+- Some other code improvements
+
 # Todos
 - Stop being an idiot
 - Fix this README.md because I know the second I commit and push it to Github I will find a typo
