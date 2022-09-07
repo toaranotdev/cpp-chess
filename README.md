@@ -47,7 +47,7 @@ that is to run it in the project directory instead
 
 # Change logs
 
-## Wednesday, 1st of Dec, 2021
+## Wednesday, 1st of December, 2021
 - Added core mechanics
 
 ## Saturday, 15th of January, 2022 
@@ -80,9 +80,17 @@ that is to run it in the project directory instead
 ## Tuesday, 6th of September, 2022
 - First day of school was alright
 - I didn't have to fix README.md again woo
-- Added legal moves for knights ;)
+- Added legal moves for Knights ;)
 - Added highlights for squares that the pieces move to
 - Some other code improvements
+
+## Wednesday, 7th of September, 2022 
+- I lied, I had to fix README.md the SECOND I PUSH IT TO GIITAISADIOHDSPINDA
+- Some fixes regarding includes since coc-nvim was being stupid and I didn't realize it
+- Some comments cleanup
+- Added legal moves for Kings!
+- Added epic finite state machine for rendering and updating in preparation for legal moves for pawns
+- Fuc
 
 # Todos
 - Stop being an idiot

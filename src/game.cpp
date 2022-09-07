@@ -1,8 +1,5 @@
 #include "game.h"
 #include "piece.h"
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <cmath>
-#include <iostream>
 
 Game::Game() {
 	this->InitializeMembers();
@@ -67,7 +64,6 @@ void Game::Update() {
 void Game::UpdateInput() {
 	// update mouse position
 	this->mousePos =  sf::Mouse::getPosition(*(this->window));
-
 	while (this->window->pollEvent(this->event)) {
 		switch (this->event.type) {
 			case sf::Event::Closed:
@@ -99,12 +95,24 @@ void Game::DrawSquare(sf::RectangleShape square, sf::Vector2f pos, sf::Color col
 }
 
 void Game::Render() {
-	this->window->clear();
-	this->RenderBoard();
-	this->RenderHighlight();
-	this->RenderPiece();
-	this->RenderHoldingPiece();
-	this->window->display();
+	switch (this->screen) {
+		case screens::board: {
+			this->window->clear();
+
+			this->RenderBoard();
+			this->RenderHighlight();
+			this->RenderPiece();
+			this->RenderHoldingPiece();
+			
+			this->window->display();
+			break;
+		}
+		case screens::selection: {
+			break;
+		}
+		default:
+			break;
+	}
 }
 
 void Game::RenderBoard() {
@@ -135,7 +143,7 @@ void Game::RenderHighlight() {
 		}
 	}
 
-	if (this->board.lastSquare > 0 && this->board.nextSquare > 0) {
+	if (this->board.lastSquare >= 0 && this->board.nextSquare >= 0) {
 		int lastSquareX = this->board.GetIndexFile(this->board.lastSquare) * this->tileSize.x;
 		int lastSquareY = std::abs(this->board.GetIndexRank(this->board.lastSquare) - 7) * this->tileSize.y;
 	
@@ -147,7 +155,7 @@ void Game::RenderHighlight() {
 
 		this->DrawSquare(this->highlight, lastSquarePos, this->previousMoveColor);	
 		this->DrawSquare(this->highlight, nextSquarePos, this->previousMoveColor);
-	}	
+	}
 }
 
 void Game::RenderPiece() {
@@ -199,43 +207,62 @@ void Game::RenderHoldingPiece() {
 }
 
 void Game::HandleMouseClick() {
-	int index = this->GetSquareUnderMouse();
-	int piece = (index != -1) ? this->board.squares[index] : Piece::none;
-
-	if (piece) {
-		this->lastSquare = index;
-
-		this->board.heldPiece = piece;
-		this->board.squares[index] = Piece::none;
-
-		this->board.GenerateHeldPieceMoves(index);
+	switch (this->screen) {
+		case screens::board: {
+			int index = this->GetSquareUnderMouse();
+			int piece = (index != -1) ? this->board.squares[index] : Piece::none;
+        		
+			if (piece) {
+				this->lastSquare = index;
+        		
+				this->board.heldPiece = piece;
+				this->board.squares[index] = Piece::none;
+        		
+				this->board.GenerateHeldPieceMoves(index);
+			}
+			break;
+		}
+		case screens::selection: {
+			break;
+		}
+		default:
+			break;
 	}
 }
 
 void Game::HandleMouseRelease() {
-	int index = this->GetSquareUnderMouse();
-	int piece = this->board.heldPiece;
-	
-	if (piece) {
-		bool canMove = this->board.colorToMove == Piece::GetColor(piece) && this->board.IsMoveValid(index);
-		if (canMove) {
-			int nextColor = (this->board.colorToMove == Piece::white) ? Piece::black : Piece::white;
-		
-			this->board.lastSquare = this->lastSquare;
-			this->board.nextSquare = index;
-
-			this->board.squares[index] = piece;
-			this->board.heldPiece = Piece::none;
-
-			this->board.colorToMove = nextColor;
-			this->board.GeneratePossibleMoves();
-		} else {
-			this->board.heldPiece = Piece::none;
-			this->board.squares[this->lastSquare] = piece;
+	switch (this->screen) {
+		case screens::board: {	
+			int index = this->GetSquareUnderMouse();
+			int piece = this->board.heldPiece;
+			
+			if (piece) {
+				bool canMove = this->board.colorToMove == Piece::GetColor(piece) && this->board.IsMoveValid(index);
+				if (canMove) {
+					int nextColor = (this->board.colorToMove == Piece::white) ? Piece::black : Piece::white;
+				
+					this->board.lastSquare = this->lastSquare;
+					this->board.nextSquare = index;
+                
+					this->board.squares[index] = piece;
+					this->board.heldPiece = Piece::none;
+                
+					this->board.colorToMove = nextColor;
+					this->board.GeneratePossibleMoves();
+				} else {
+					this->board.heldPiece = Piece::none;
+					this->board.squares[this->lastSquare] = piece;
+				}
+                
+				this->board.ClearHeldPieceMoveData();
+			}
 		}
-
-		this->board.ClearHeldPieceMoveData();
-	}
+		case screens::selection: {
+			break;
+		}
+		default:
+			break;
+	};
 }
 
 int Game::GetSquareUnderMouse() {

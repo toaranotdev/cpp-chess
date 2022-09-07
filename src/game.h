@@ -1,11 +1,14 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Rect.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
 #include <memory>
 
 #include "board.h"
+
+enum screens {
+	board,
+	selection
+};
 
 class Game {
 	public:
@@ -15,22 +18,13 @@ class Game {
 		void InitializeMembers();
 		
 		void InitializeWindow();
-		
-		void InitializeSprites();
-		void InitializePieceSprite();
-		void InitializeTileSprite();
-
 		void Update();
-		void UpdateInput();
-		
 		void Render();
-		void RenderBoard();
-		void RenderHighlight();
-		void RenderPiece();
-		void RenderHoldingPiece();
 
 		void HandleMouseClick();
 		void HandleMouseRelease();
+
+		void ChangeScreen(int screen);
 
 		// getters
 		int GetSquareUnderMouse();
@@ -38,15 +32,27 @@ class Game {
 		// checks
 		bool IsWindowOpen();
 	private:
+		int screen = screens::board;
 
+		void InitializeSprites();
+		void InitializePieceSprite();
+		void InitializeTileSprite();
 		void DrawSquare(sf::RectangleShape square, sf::Vector2f pos, sf::Color color);
+
+
+		void RenderBoard();
+		void RenderHighlight();
+		void RenderPiece();
+		void RenderHoldingPiece();
+
+		void UpdateInput();
 
 		std::unique_ptr<sf::RenderWindow> window;
 		sf::Event event;
-
+		// our board object
+		Board board;
 		// mouse position
 		sf::Vector2i mousePos;
-
 		// single square sprite to draw the board
 		sf::RectangleShape tile;
 		// single square sprite to draw highlights
@@ -56,13 +62,11 @@ class Game {
 		int lastSquare;
 
 		/*
-			apparently you can do
-			sf::Vector2f tileSize (85.f, 85.f) in a FUNCTION
-			but not in CLASSES *why*
-		*/
+		 * apparently you can not write () in classes
+		 * but you can write {} to construct it, absolutely no clue
+		 */
 
 		sf::Vector2f tileSize { 85.f, 85.f };
-		float spriteSize = 334; // size of one sprite in that whole atlas (./assets/textures/pieces.png)
 
 		// pieces appearance
 		sf::Texture texture;
@@ -72,9 +76,6 @@ class Game {
 			{Piece::bishop, 2}	, {Piece::knight, 3},
 			{Piece::rook, 4}	, {Piece::pawn, 5}
 		};
-
-		// our board object
-		Board board;
 		
 		// tile colors
 		sf::Color lightSquare { 140, 162, 173 };

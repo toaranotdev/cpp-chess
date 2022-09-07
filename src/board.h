@@ -20,7 +20,9 @@ class Board {
 		std::vector<int> heldPieceMoves;
 		std::vector<std::vector<int>> numSquaresToEdge;
 
-		int heldPiece;
+		// just crashed my program by not setting it to 0
+		// not sure how it did not happen in the last like 12038219032183 build tests
+		int heldPiece = 0;
 
 		int colorToMove;
 
@@ -48,7 +50,8 @@ class Board {
 		
 		void GenerateSlidingPieceMoves(int startSquare, int piece);
 		void GenerateKnightMoves(int startSquare);
+		void GenerateKingMoves(int startSquare);
 
-		std::string startingFen = "nrqb/8/8/8/8/8/8/RBQ w KQkq - 0 1";
+		std::string startingFen = "nrqb/8/8/8/8/8/8/KRBQ w KQkq - 0 1";
 		int directionOffsets[8] = { 8, -8, 1, -1, 7, -7, 9, -9 };
 };

@@ -52,19 +52,18 @@ void Board::GeneratePossibleMoves() {
 			switch (type) {
 				case Piece::bishop:
 				case Piece::rook:
-				case Piece::queen: 
-
-				{
+				case Piece::queen: {
 					this->GenerateSlidingPieceMoves(i, piece);
 					break;
 				}
-
-				case Piece::knight:
-				{
+				case Piece::knight: {
 					this->GenerateKnightMoves(i);
 					break;
 				}
-				
+				case Piece::king: {
+					this->GenerateKingMoves(i);
+					break;
+				}
 				default:
 					break;
 			}
@@ -115,6 +114,22 @@ void Board::GenerateKnightMoves(int startSquare) {
 			if (Piece::IsColor(pieceOnTargetSquare, this->colorToMove))
 				continue;
 			
+			this->possibleMoves.push_back({ startSquare, targetSquare });
+		}
+	}
+}
+
+void Board::GenerateKingMoves (int startSquare) {
+	const int kingMoves[] = { 1, -1, 8, -8, 7, -7, 9, -9 };
+	for (int offset : kingMoves) {
+		int targetSquare = startSquare + offset;
+		bool isRangeValid = (this->AreTwoSquaresInRange(startSquare, targetSquare, 1));
+		
+		if (isRangeValid) {
+			int pieceOnTargetSquare = this->squares[targetSquare];
+			if (Piece::IsColor(pieceOnTargetSquare, this->colorToMove)) 
+				continue;
+
 			this->possibleMoves.push_back({ startSquare, targetSquare });
 		}
 	}

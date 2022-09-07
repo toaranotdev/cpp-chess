@@ -2,7 +2,6 @@
 
 /*
  * also fuck those namespaces and their members
- *
  */ 
 
 
@@ -15,7 +14,6 @@ std::map <char, int> FenUtil::pieceMap {
 
 /*
  * fuck those pointers and arrays
- *
  */
 
 void FenUtil::LoadFen(BoardData data, std::string fenString) {
