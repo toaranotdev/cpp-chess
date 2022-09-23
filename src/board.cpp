@@ -1,5 +1,4 @@
 #include "board.h"
-#include <cmath>
 
 Board::Board() {
 	BoardData data = this->ExportData();
@@ -64,6 +63,9 @@ void Board::GeneratePossibleMoves() {
 					this->GenerateKingMoves(i);
 					break;
 				}
+				case Piece::pawn: {
+					this->GeneratePawnMoves(i, piece);
+				}
 				default:
 					break;
 			}
@@ -72,7 +74,6 @@ void Board::GeneratePossibleMoves() {
 }
 
 void Board::GenerateSlidingPieceMoves (int startSquare, int piece) {
-
 	int startDirIndex = (Piece::IsType (piece, Piece::bishop)) ? 4 : 0;
     	int endDirIndex = (Piece::IsType (piece, Piece::rook)) ? 4 : 8;
 
@@ -81,13 +82,13 @@ void Board::GenerateSlidingPieceMoves (int startSquare, int piece) {
 		
 			int targetSquare = startSquare + this->directionOffsets[directionIndex] * (square + 1);
             		int pieceOnTargetSquare = this->squares[targetSquare];
-	
+
 			// target square contains a friendly piece, can't move further
 			if (Piece::IsColor(pieceOnTargetSquare, this->colorToMove)) {
 				break;
 			}
 
-            		this->possibleMoves.push_back ({ startSquare, targetSquare });
+            		this->possibleMoves.push_back ({ startSquare, targetSquare, Flag::MOVE });
 
 			// target square contains enemy piece, can't move further after capturing it
             		if (pieceOnTargetSquare != Piece::none) {
@@ -114,25 +115,93 @@ void Board::GenerateKnightMoves(int startSquare) {
 			if (Piece::IsColor(pieceOnTargetSquare, this->colorToMove))
 				continue;
 			
-			this->possibleMoves.push_back({ startSquare, targetSquare });
+			this->possibleMoves.push_back({ startSquare, targetSquare, Flag::MOVE });
 		}
 	}
 }
 
 void Board::GenerateKingMoves (int startSquare) {
 	const int kingMoves[] = { 1, -1, 8, -8, 7, -7, 9, -9 };
-	for (int offset : kingMoves) {
-		int targetSquare = startSquare + offset;
-		bool isRangeValid = (this->AreTwoSquaresInRange(startSquare, targetSquare, 1));
+	for (int o : kingMoves) {
+		int targetSquare = startSquare + o;
+		bool isValid = (this->AreTwoSquaresInRange(startSquare, targetSquare, 1)) && targetSquare >= 0 && targetSquare < 64;
 		
-		if (isRangeValid) {
+		if (isValid) {
 			int pieceOnTargetSquare = this->squares[targetSquare];
 			if (Piece::IsColor(pieceOnTargetSquare, this->colorToMove)) 
 				continue;
 
-			this->possibleMoves.push_back({ startSquare, targetSquare });
+			this->possibleMoves.push_back({ startSquare, targetSquare, Flag::MOVE });
 		}
 	}
+}
+
+void Board::GeneratePawnMoves (int startSquare, int piece) {
+	const int pawnMoves[] = { 8, 7, 9 };	
+	int color = Piece::GetColor(piece);
+	int directionOffset = (color == Piece::white) ? 1 : -1;
+	int startRank = this->GetIndexRank(startSquare);
+
+	for (int offset : pawnMoves) {
+		// pushes
+		if (offset == 8) {
+			int targetSquare = startSquare + offset * directionOffset;
+			int targetRank = this->GetIndexRank(targetSquare);
+			// make sure the pawn only moves 1 square blablabla
+			bool isValid = this->AreTwoSquaresInRange(startSquare, targetSquare, 1);
+			if (isValid) {
+				int pieceOnTargetSquare = this->squares[targetSquare];
+				// something is blocking the way, we're not gonna look any
+				// further
+				if (pieceOnTargetSquare)
+					continue;
+
+				int flag = ((Piece::IsColor(piece, Piece::white) && targetRank == 7) ||
+						(Piece::IsColor(piece, Piece::black) && targetRank == 0)) ? Flag::PROMOTION : Flag::MOVE;
+
+				this->possibleMoves.push_back({ startSquare, targetSquare, flag });
+				
+				// double pawn pushes
+				if ((Piece::IsColor(piece, Piece::white) && startRank == 1) ||
+					(Piece::IsColor(piece, Piece::black) && startRank == 6)) {
+
+					targetSquare = startSquare + offset * directionOffset * 2;
+					pieceOnTargetSquare = this->squares[targetSquare];
+
+					if (pieceOnTargetSquare)
+						continue;
+
+					this->possibleMoves.push_back({ startSquare, targetSquare, Flag::DOUBLE_PUSH });
+				}
+			}
+		// captures
+		} else if (offset == 7 || offset == 9) {
+			int targetSquare = startSquare + offset * directionOffset;
+			bool isValid = this->AreTwoSquaresInRange(startSquare, targetSquare, 1);
+			
+			if (isValid) {
+				int targetFile = this->GetIndexFile(targetSquare);
+				int pieceOnTargetSquare = this->squares[targetSquare];
+				
+				// en passant captures
+				if ((Piece::IsColor(piece, Piece::white) && startRank == 4) ||
+					(Piece::IsColor(piece, Piece::black) && startRank == 3)) {
+					
+					if (targetFile == this->enPassantFile) 
+						this->possibleMoves.push_back({ startSquare, targetSquare, Flag::EN_PASSANT });
+				}
+				
+				// nothing to captures
+				if (!pieceOnTargetSquare)
+					continue;
+
+				this->possibleMoves.push_back({ startSquare, targetSquare, Flag::MOVE });
+			}
+		}
+	}
+
+	// had to reset it and stuff yes
+	this->enPassantFile = -1;
 }
 
 void Board::ClearPossibleMoveData() {
@@ -154,6 +223,16 @@ bool Board::AreTwoSquaresInRange(int startSquare, int targetSquare, int range) {
 	int max = std::max(deltaX, deltaY);
 
 	return max == range;
+}
+
+int Board::GetMoveFlag(int startSquare, int targetSquare) {
+	for (Move move : this->possibleMoves) {
+		if (move.startSquare == startSquare && move.targetSquare == targetSquare) {
+			return move.flag;
+		}
+	}
+	// place holder in case shit happens :o
+	return Flag::MOVE;
 }
 
 int Board::GetIndexRank(int index) {

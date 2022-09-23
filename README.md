@@ -31,7 +31,7 @@ SDL = headache = big nono
 
 Simply run the following command (assuming you're on linux cuz fuck Microsoft)
 
-```
+```sh
 cd build
 cmake .. && make
 ```
@@ -41,7 +41,7 @@ cmake .. && make
 The texture will fail to load if you run it in the build directory, sorry :<. A way around
 that is to run it in the project directory instead
 
-```
+```sh
 ./build/cpp-chess
 ```
 
@@ -91,6 +91,14 @@ that is to run it in the project directory instead
 - Added legal moves for Kings!
 - Added epic finite state machine for rendering and updating in preparation for legal moves for pawns
 - Fuc
+
+## Friday, 23th of September, 2022
+- School sucks
+
+> I even got the hottest new moves from the 15th century like double pawn pushes... and en passant
+
+- Code cleanup and stuff teeheehehee (as per usual)
+- Why am I always fking tired
 
 # Todos
 - Stop being an idiot
