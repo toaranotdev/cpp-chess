@@ -71,6 +71,8 @@ void Board::GeneratePossibleMoves() {
 			}
 		}
 	}
+	// clear en passant data because asjdisadjsaidsajdaiodjsadpasd
+	this->enPassantFile = -1;
 }
 
 void Board::GenerateSlidingPieceMoves (int startSquare, int piece) {
@@ -122,6 +124,7 @@ void Board::GenerateKnightMoves(int startSquare) {
 
 void Board::GenerateKingMoves (int startSquare) {
 	const int kingMoves[] = { 1, -1, 8, -8, 7, -7, 9, -9 };
+
 	for (int o : kingMoves) {
 		int targetSquare = startSquare + o;
 		bool isValid = (this->AreTwoSquaresInRange(startSquare, targetSquare, 1)) && targetSquare >= 0 && targetSquare < 64;
@@ -133,6 +136,55 @@ void Board::GenerateKingMoves (int startSquare) {
 
 			this->possibleMoves.push_back({ startSquare, targetSquare, Flag::MOVE });
 		}
+	}
+
+	bool isWhitePiece = (this->colorToMove == Piece::white);
+
+	int kingSideRookIndex = (isWhitePiece) ? 7 : 63;
+	int queenSideRookIndex = (isWhitePiece) ? 0 : 56;
+	
+	int kingSideKingIndex = (isWhitePiece) ? 6 : 62;
+	int queenSideKingIndex = (isWhitePiece) ? 2 : 58;
+
+	int* castleRights = &((isWhitePiece) ? this->whiteCastleRights : this->blackCastleRights);
+	
+	bool canCastleKingSide = (*castleRights & this->kingSideCastleMask) == this->kingSideCastleMask;
+	bool canCastleQueenSide = (*castleRights & this->queenSideCastleMask) == this->queenSideCastleMask;
+
+	bool hasKingMoved = (startSquare != ((isWhitePiece) ? 4 : 60));
+
+	for (int i = 0; i < 2; i ++) {
+		bool isCastleKingSide = (i == 0);
+		bool canCastle = (isCastleKingSide) ? canCastleKingSide : canCastleQueenSide;
+
+		int targetSquare = (isCastleKingSide) ? kingSideKingIndex : queenSideKingIndex;
+		int rookIndex = (isCastleKingSide) ? kingSideRookIndex : queenSideRookIndex;
+		int range = std::abs(startSquare - targetSquare);
+		
+		for (int i = 1; i <= range; i ++) {
+			int index = (isCastleKingSide) ? startSquare + i : startSquare - i;
+			int piece = this->squares[index];
+			// something is in the way, disable castling for that side for now
+			if (piece) {
+				goto endLoop;
+			}
+		}
+
+		if (canCastle) {
+			bool isRookPresent = (Piece::IsType(this->squares[rookIndex], Piece::rook));
+		
+			int flag = (isCastleKingSide) ? Flag::CASTLE_KING_SIDE : Flag::CASTLE_QUEEN_SIDE;
+			// rook isn't present or king has moved
+			// disable castling for that side entirely
+			if (!isRookPresent || hasKingMoved) {
+					*castleRights = (isCastleKingSide) ? 0b0011 & *castleRights : 0b1100 & *castleRights;	
+					continue;
+			}
+
+			this->possibleMoves.push_back({ startSquare, targetSquare, flag });
+		}
+
+		endLoop:;
 	}
 }
 
@@ -186,11 +238,11 @@ void Board::GeneratePawnMoves (int startSquare, int piece) {
 				// en passant captures
 				if ((Piece::IsColor(piece, Piece::white) && startRank == 4) ||
 					(Piece::IsColor(piece, Piece::black) && startRank == 3)) {
-					
-					if (targetFile == this->enPassantFile) 
+
+					if (targetFile == this->enPassantFile)
 						this->possibleMoves.push_back({ startSquare, targetSquare, Flag::EN_PASSANT });
 				}
-				
+								
 				// nothing to captures
 				if (!pieceOnTargetSquare)
 					continue;
@@ -199,9 +251,6 @@ void Board::GeneratePawnMoves (int startSquare, int piece) {
 			}
 		}
 	}
-
-	// had to reset it and stuff yes
-	this->enPassantFile = -1;
 }
 
 void Board::ClearPossibleMoveData() {

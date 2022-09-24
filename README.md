@@ -100,6 +100,14 @@ that is to run it in the project directory instead
 - Code cleanup and stuff teeheehehee (as per usual)
 - Why am I always fking tired
 
+## Saturday, 24th of September, 2022
+- I realized I totally butchered the square colors lmfao
+- I also realized pawns can captures pieces of their same color, and I need to fix it to prevent pieces from having cannibalism (That'd be seriously bad)
+- I also found out that en passant is completely broken due to the way I reset the en passant file data (Why is the pawn the most broken-ass piece in this entire game)
+- Added castle moves! ;)
+- Some clean up as usual (not much though xd)
+- Yes
+
 # Todos
 - Stop being an idiot
 - Fix this README.md because I know the second I commit and push it to Github I will find a typo

@@ -77,7 +77,7 @@ void Game::Render() {
 void Game::RenderBoard() {
 	for (int rank = 0; rank < 8; rank ++) {
 		for (int file = 0; file < 8; file ++) {
-			bool isLightSquare = ((rank + file) % 2 == 0);
+			bool isLightSquare = ((std::abs(rank - 7) + file) % 2 == 0);
 			sf::Color color = (isLightSquare) ? Theme::lightSquareCol : Theme::darkSquareCol;	
 
 			int x = file * Graphics::tileSize.x;
@@ -226,35 +226,6 @@ void Game::RenderSelection() {
 	}
 }
 
-/*
-void Game::RenderSelection() {
-	int pieceList[] = { Piece::bishop, Piece::knight, Piece::rook, Piece::queen };
-	sf::Vector2<unsigned int> windowSize = this->window->getSize();
-	
-	float size = 85.f * 1.5;
-	// super extra complicated math, this is probably the smartest equation
-	// i have ever fkin came up with lmao	
-	float startingX = (((windowSize.x / size) - 4) / 2) * size;
-	
-	// had to subtract because the sprite origin is in the top left instead of in the center
-	const float y = (windowSize.y / size / 2.f) * size - (size / 2.f);
-
-	for (int i = 0; i < 4; i ++) {
-		float finalX = startingX + size * i;
-		
-		sf::Vector2f pos { finalX, y };
-		Graphics::inactiveSelection.setPosition(pos);
-		Graphics::activeSelection.setPosition(pos);
-		
-		if (Graphics::activeSelection.getGlobalBounds().contains(this->mousePos.x, this->mousePos.y)) {
-			this->window->draw(Graphics::activeSelection);
-			this->board.heldPiece = (Piece::GetColor(this->board.heldPiece)) | pieceList[i];
-		} else {
-			this->window->draw(Graphics::inactiveSelection);
-		}
-	}
-}*/
-
 void Game::HandleMouseClick() {
 	switch (this->screen) {
 		case screens::BOARD: {
@@ -313,7 +284,7 @@ void Game::HandleMouseClick() {
 
 void Game::HandleMouseRelease() {
 	switch (this->screen) {
-		case screens::BOARD: {	
+		case screens::BOARD: {
 			int startSquare = this->lastSquare;
 			int targetSquare = this->GetSquareUnderMouse();
 			int piece = this->board.heldPiece;
@@ -339,6 +310,22 @@ void Game::HandleMouseRelease() {
 							int directionOffset = (Piece::IsColor(piece, Piece::white)) ? -1 : 1;
 							int squareBehind = targetSquare	+ 8 * directionOffset;
 							this->board.squares[squareBehind] = Piece::none;
+							break;
+						}
+						case Flag::CASTLE_QUEEN_SIDE:
+						case Flag::CASTLE_KING_SIDE: {
+							bool isWhitePiece = (this->board.colorToMove == Piece::white);
+							bool isCastleKingSide = (flag == Flag::CASTLE_KING_SIDE);
+
+							int kingSideRookIndex = (isWhitePiece) ? 7 : 63;
+							int queenSideRookIndex = (isWhitePiece) ? 0 : 56;
+							int offset = (isCastleKingSide) ? -2 : 3;
+							
+							int oldRookIndex = (isCastleKingSide) ? kingSideRookIndex : queenSideRookIndex;
+							int newRookIndex = oldRookIndex + offset;
+
+							this->board.squares[newRookIndex] = this->board.squares[oldRookIndex];
+							this->board.squares[oldRookIndex] = Piece::none;
 							break;
 						}
 						default:

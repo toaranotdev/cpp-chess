@@ -33,8 +33,8 @@ void Graphics::Initialize() {
 			sf::Sprite* sprite = &(Graphics::pieceSprites[i]);
 
 			// epic math to figure out where to cut the texture and shit
-			int shiftX = (i > 6) ? (i - 6) * size : i * size;
-			int shiftY = (i > 6) ?  size : 0;
+			int shiftX = (i > 5) ? (i - 6) * size : i * size;
+			int shiftY = (i > 5) ? size : 0;
 
 			sf::IntRect spriteRect (shiftX, shiftY, size, size);
 

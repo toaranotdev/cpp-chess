@@ -9,7 +9,9 @@ enum Flag {
 	MOVE,
 	PROMOTION,
 	DOUBLE_PUSH,
-	EN_PASSANT
+	EN_PASSANT,
+	CASTLE_KING_SIDE,
+	CASTLE_QUEEN_SIDE
 };
 
 struct Move {
@@ -56,8 +58,8 @@ class Board {
 		// the file that was marked as en passant-able
 		int enPassantFile = -1;
 
-		int whiteSideCastle = 0b0000;
-		int blackSideCastle = 0b0000;
+		int whiteCastleRights = 0b1111;
+		int blackCastleRights = 0b1111;
 
 		int kingSideCastleMask = 0b1100;
 		int queenSideCastleMask = 0b0011;
@@ -69,6 +71,6 @@ class Board {
 		void GenerateKingMoves(int startSquare);
 		void GeneratePawnMoves(int startSquare, int piece);
 
-		std::string startingFen = "nrqb/7p/8/8/8/8/8/KRBQ2P1 w KQkq - 0 1";
+		std::string startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 		int directionOffsets[8] = { 8, -8, 1, -1, 7, -7, 9, -9 };
 };
