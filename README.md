@@ -108,6 +108,16 @@ that is to run it in the project directory instead
 - Some clean up as usual (not much though xd)
 - Yes
 
+## Saturday, 1st of October, 2022
+![pic1](imgs/joy-of-memory-management-01.png)
+![pic2](imgs/joy-of-memory-management-02.png)
+
+- I did not fix the cannibalism, wtf
+- Also messed up the promotion as well
+- Some code cleanup (yet again, this time i added some comments (i think its a bit too much) idek)
+- Changes to code that allow it to be reused later when filtering the psuedo legal moves later
+- Pain and agony
+
 # Todos
 - Stop being an idiot
 - Fix this README.md because I know the second I commit and push it to Github I will find a typo

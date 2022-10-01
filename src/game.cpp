@@ -1,6 +1,4 @@
 #include "game.h"
-#include "graphics.h"
-#include "theme.h"
 
 Game::Game() {
 	Graphics::Initialize();
@@ -78,7 +76,7 @@ void Game::RenderBoard() {
 	for (int rank = 0; rank < 8; rank ++) {
 		for (int file = 0; file < 8; file ++) {
 			bool isLightSquare = ((std::abs(rank - 7) + file) % 2 == 0);
-			sf::Color color = (isLightSquare) ? Theme::lightSquareCol : Theme::darkSquareCol;	
+			sf::Color color = (isLightSquare) ? Color::light : Color::dark;	
 
 			int x = file * Graphics::tileSize.x;
 			int y = std::abs(rank - 7) * Graphics::tileSize.y;
@@ -98,7 +96,7 @@ void Game::RenderHighlight() {
 			int y = std::abs(this->board.GetIndexRank(i) - 7) * Graphics::tileSize.y;
 			sf::Vector2f pos (x, y);
 			
-			Graphics::DrawSquare(pos, Theme::legalMoveCol, this->window.get());
+			Graphics::DrawSquare(pos, Color::legalMove, this->window.get());
 		}
 	}
 
@@ -112,8 +110,8 @@ void Game::RenderHighlight() {
 		sf::Vector2f lastSquarePos (lastSquareX, lastSquareY);
 		sf::Vector2f nextSquarePos (nextSquareX, nextSquareY);
 
-		Graphics::DrawSquare(lastSquarePos, Theme::lastMoveCol, this->window.get());	
-		Graphics::DrawSquare(nextSquarePos, Theme::lastMoveCol, this->window.get());
+		Graphics::DrawSquare(lastSquarePos, Color::lastestMove, this->window.get());	
+		Graphics::DrawSquare(nextSquarePos, Color::lastestMove, this->window.get());
 	}
 }
 
@@ -233,7 +231,7 @@ void Game::HandleMouseClick() {
 			int piece = (index != -1) ? this->board.squares[index] : Piece::none;
 
 			if (piece) {
-				this->lastSquare = index;
+				this->lastClickedSquare = index;
         		
 				this->board.heldPiece = piece;
 				this->board.squares[index] = Piece::none;
@@ -255,24 +253,28 @@ void Game::HandleMouseClick() {
 			const float firstY = (windowSize.y / size / 2.f) * size - (size / 2.f);
 			const float secondY = firstY + size;
 
+			// if the mouse is in the selection region
 			if (this->mousePos.x > firstX && this->mousePos.x < secondX && this->mousePos.y > firstY && this->mousePos.y < secondY) {
 				// not really sure how this works, took some trials and errors to make this lol
 				float selectionIndex = (this->mousePos.x - startingX) / size;
 				int color = this->board.colorToMove;
-				int startSquare = this->lastSquare;
-				int targetSquare = *(this->board.heldPieceMoves.begin());
+
+				// the idea of creating another variable or possibly
+				// dealing with pointers are headache inducing so ima just gonna
+				// salvage this lol #savenature
+				int targetSquare = this->board.nextSquare;
                         
+				// figures out what piece is being selected, then place the piece
 				this->board.heldPiece = pieceList[int(selectionIndex)] | color;
 				this->board.squares[targetSquare] = this->board.heldPiece;
 				this->board.heldPiece = Piece::none;
                         
-				this->ChangeScreen(screens::BOARD);
-                        
-				this->board.lastSquare = startSquare;
-				this->board.nextSquare = targetSquare;
-                        
+				// switch the screen back
+				this->ChangeScreen(screens::BOARD); 
+                       
+				// some other stuff asjdisajdas
 				this->board.colorToMove = (this->board.colorToMove == Piece::black) ? Piece::white : Piece::black;
-				this->board.GeneratePossibleMoves();
+				this->board.CalculateMoves();
 				this->board.ClearHeldPieceMoveData();
 			}
 			break;
@@ -285,7 +287,7 @@ void Game::HandleMouseClick() {
 void Game::HandleMouseRelease() {
 	switch (this->screen) {
 		case screens::BOARD: {
-			int startSquare = this->lastSquare;
+			int startSquare = this->lastClickedSquare;
 			int targetSquare = this->GetSquareUnderMouse();
 			int piece = this->board.heldPiece;
 				
@@ -295,12 +297,17 @@ void Game::HandleMouseRelease() {
 					int flag = this->board.GetMoveFlag(startSquare, targetSquare);
 					int nextColor = (this->board.colorToMove == Piece::white) ? Piece::black : Piece::white;
 
+					this->board.lastSquare = startSquare;
+					this->board.nextSquare = targetSquare;
+					
 					switch (flag) {
 						case Flag::DOUBLE_PUSH: {
+							// marks file as en passant-able
 							this->board.enPassantFile = this->board.GetIndexFile(targetSquare);
 							break;
 						}
 						case Flag::PROMOTION: {
+							// change the "scene"
 							this->ChangeScreen(screens::SELECTION);
 							return;
 						}
@@ -330,19 +337,18 @@ void Game::HandleMouseRelease() {
 						}
 						default:
 							break;
-					}
- 
-					this->board.lastSquare = startSquare;
-					this->board.nextSquare = targetSquare;
-					
+					} 
+					// handle placement
 					this->board.squares[targetSquare] = piece;
 					this->board.heldPiece = Piece::none;
                 
+					// change the color to move and then generate the next moves
 					this->board.colorToMove = nextColor;
-					this->board.GeneratePossibleMoves();
+					this->board.CalculateMoves();
 				} else {
+					// resetting the piece placement
 					this->board.heldPiece = Piece::none;
-					this->board.squares[this->lastSquare] = piece;
+					this->board.squares[this->lastClickedSquare] = piece;
 				}
                 
 				this->board.ClearHeldPieceMoveData();

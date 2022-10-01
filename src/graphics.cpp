@@ -6,7 +6,9 @@ namespace Graphics {
 	sf::Texture selectionTexture;
 	
 	sf::Vector2f tileSize { 85.f, 85.f };
+	// the rectangle used to draw the board, the highlight, etc..
 	sf::RectangleShape tile { Graphics::tileSize };
+	// the rectangle that is used in the pawn promotion selection
 	sf::RectangleShape activeSelection { Graphics::tileSize };
 	sf::RectangleShape inactiveSelection { Graphics::tileSize };
 

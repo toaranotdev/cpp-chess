@@ -51,7 +51,7 @@ class Game {
 		// single square sprite to draw highlights
 		sf::RectangleShape highlight;
 		// contains the previously clicked square
-		int lastSquare;
+		int lastClickedSquare;
 		// screen
 		int screen = screens::BOARD;
 };

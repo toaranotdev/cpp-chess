@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "piece.h"
-#include "theme.h"
+#include "color.h"
 
 namespace Graphics {
 	extern sf::Sprite pieceSprites[];
